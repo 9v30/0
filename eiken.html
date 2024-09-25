@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英検練習ソフト</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f9fc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+
+    #app {
+      text-align: center;
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 500px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    #options {
+      margin: 20px 0;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 12px 25px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    button.correct {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    button.incorrect {
+      background-color: #3498db;
+      color: white;
+    }
+
+    button:disabled {
+      background-color: #95a5a6;
+      color: #ecf0f1;
+      cursor: not-allowed;
+    }
+
+    button:hover:enabled {
+      background-color: #2980b9;
+    }
+
+    #next-button {
+      background-color: #e74c3c;
+      color: white;
+      border-radius: 5px;
+      padding: 12px 25px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s;
+    }
+
+    #next-button:disabled {
+      background-color: #c0392b;
+      cursor: not-allowed;
+    }
+
+    #next-button:hover:enabled {
+      background-color: #c0392b;
+    }
+
+    #result {
+      font-size: 20px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
+    #score {
+      font-size: 18px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    #timer {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #555;
+    }
+
+    #mode-toggle {
+      background-color: #f39c12;
+      color: white;
+      border-radius: 5px;
+      padding: 12px 25px;
+      cursor: pointer;
+      border: none;
+      margin-top: 15px;
+      transition: background-color 0.3s;
+    }
+
+    #mode-toggle:hover:enabled {
+      background-color: #e67e22;
+    }
+
+    #mode-toggle:disabled {
+      background-color: #d35400;
+      cursor: not-allowed;
+    }
+
+    #notification-container {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+    }
+
+    .notification {
+      background-color: #333;
+      color: #fff;
+      padding: 15px;
+      margin-top: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <h1 id="word-label">単語を表示</h1>
+    <div id="options"></div>
+    <div id="result"></div>
+    <div id="score">正答率: 0/0</div>
+    <div id="timer">経過時間: 0秒</div>
+    <button id="next-button" disabled>次の単語</button>
+    <button id="mode-toggle">復習モード: OFF</button>
+  </div>
+
+  <div id="notification-container"></div>
+
+  <script src="./words_x4.js"></script>
+  <script>
+    let currentWord = null;
+    let currentMeaning = null;
+    let correctAnswers = 0;
+    let totalAnswers = 0;
+    let wrongWords = [];
+    let isReviewMode = false;
+    let startTime = null;
+    let timerInterval = null;
+    let randomIndex = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      startTime = new Date();
+      timerInterval = setInterval(updateTimer, 1000);
+
+      nextWord();
+
+      document.getElementById('next-button').addEventListener('click', nextWord);
+      document.getElementById('mode-toggle').addEventListener('click', toggleMode);
+      document.addEventListener('keydown', handleKeydown);
+    });
+
+    function nextWord() {
+      if (isReviewMode) {
+        if (wrongWords.length === 0) {
+          showNotification('ERROR', '復習すべき単語がありません。通常モードに戻ります。');
+          isReviewMode = false;
+          updateModeButton();
+          const keys = Object.keys(words);
+          currentWord = keys[Math.floor(Math.random() * keys.length)];
+          currentMeaning = words[currentWord];
+        } else {
+          randomIndex = Math.floor(Math.random() * wrongWords.length);
+          currentWord = wrongWords[randomIndex].word;
+          currentMeaning = wrongWords[randomIndex].meaning;
+        }
+      } else {
+        const keys = Object.keys(words);
+        currentWord = keys[Math.floor(Math.random() * keys.length)];
+        currentMeaning = words[currentWord];
+      }
+
+      document.getElementById('word-label').innerText = `単語: ${currentWord}`;
+      document.getElementById('result').innerText = '';
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+
+      const allMeanings = Object.values(words);
+      const wrongMeanings = allMeanings.filter(m => m !== currentMeaning);
+      const selectedMeanings = [currentMeaning, ...wrongMeanings.sort(() => 0.5 - Math.random()).slice(0, 3)];
+      selectedMeanings.sort(() => 0.5 - Math.random());
+
+      selectedMeanings.forEach((meaning, index) => {
+        const button = document.createElement('button');
+        button.innerText = meaning;
+        button.className = 'incorrect';
+        button.dataset.index = index + 1;
+        button.addEventListener('click', () => checkAnswer(meaning));
+        optionsDiv.appendChild(button);
+      });
+
+      document.getElementById('next-button').disabled = true;
+    }
+
+    function checkAnswer(selectedMeaning) {
+      totalAnswers++;
+
+      if (selectedMeaning === currentMeaning) {
+        correctAnswers++;
+        document.getElementById('result').innerText = "正解！";
+        document.getElementById('result').style.color = 'green';
+
+        // 正解した単語を復習リストから削除する
+        if (isReviewMode) {
+          wrongWords = wrongWords.filter(word => word.word !== currentWord);
+          updateModeButton();
+        }
+      } else {
+        document.getElementById('result').innerText = `不正解。正しい意味: ${currentMeaning}`;
+        document.getElementById('result').style.color = 'red';
+        if (!isReviewMode) {
+          wrongWords.push({ word: currentWord, meaning: currentMeaning });
+        }
+      }
+
+      const buttons = document.querySelectorAll('#options button');
+      buttons.forEach(button => {
+        button.disabled = true;
+      });
+
+      document.getElementById('next-button').disabled = false;
+      updateScore();
+    }
+
+
+    function toggleMode() {
+      isReviewMode = !isReviewMode;
+      updateModeButton();
+    }
+
+    function updateModeButton() {
+      const modeButton = document.getElementById('mode-toggle');
+      modeButton.innerText = `復習モード: ${isReviewMode ? 'ON' : 'OFF'}`;
+      if (isReviewMode && wrongWords.length === 0) {
+        modeButton.disabled = true;
+      } else {
+        modeButton.disabled = false;
+      }
+    }
+
+    function updateScore() {
+      document.getElementById('score').innerText = `正答率: ${correctAnswers}/${totalAnswers}`;
+    }
+
+    function updateTimer() {
+      const elapsedTime = Math.floor((new Date() - startTime) / 1000);
+      document.getElementById('timer').innerText = `経過時間: ${elapsedTime}秒`;
+    }
+
+    function handleKeydown(event) {
+      const key = event.key;
+      if (key >= 1 && key <= 4) {
+        const button = document.querySelector(`#options button[data-index="${key}"]`);
+        if (button && !button.disabled) {
+          checkAnswer(button.innerText);
+        }
+      } else if (key === ' ') {
+        const nextButton = document.getElementById('next-button');
+        if (!nextButton.disabled) {
+          nextWord();
+        }
+      }
+    }
+
+    function showNotification(title, message) {
+      const container = document.getElementById('notification-container');
+
+      const notification = document.createElement('div');
+      notification.classList.add('notification');
+      notification.innerHTML = `<strong>${title}</strong><p>${message}</p>`;
+
+      container.appendChild(notification);
+
+      // Show the notification
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+
+      // Hide after 3 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
+        // Remove from DOM
+        setTimeout(() => {
+          container.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+  </script>
+</body>
+
+</html>
