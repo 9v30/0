@@ -92,6 +92,14 @@
         document.getElementById('display').innerText = 'Error';
       }
     }
+
+    document.addEventListener('touchmove', function(e) {
+        e.preventDefault(); // スクロールを無効にする
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault(); // ピンチを無効にする
+    });
   </script>
 </body>
 </html>
