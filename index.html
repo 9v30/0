@@ -1,8 +1,88 @@
-<style>
-  body {
-    background-color: #F06020;
-  }
-</style>
-<h1>Roop</h1>
-<a href="/english">英語練習のやつ</a>
-<a href="/calculator">電卓的な</a>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roop's Portfolio</title>
+  <style>
+    /* 全体のスタイル設定 */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #4CAF50;
+      width: 100%;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 2.5rem;
+      margin: 0;
+    }
+
+    .works {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 30px 0;
+    }
+
+    .work-item {
+      text-decoration: none;
+      color: white;
+      background-color: #333;
+      padding: 15px 30px;
+      margin: 10px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s;
+    }
+
+    .work-item:hover {
+      background-color: #555;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 10px 0;
+      background-color: #333;
+      color: white;
+      width: 100%;
+      text-align: center;
+    }
+
+    footer p {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Roop's Portfolio</h1>
+  </header>
+
+  <section class="works">
+    <a href="/english" class="work-item">英語練習のやつ</a>
+    <a href="/calculator" class="work-item">電卓的な</a>
+  </section>
+
+  <footer>
+    <p>&copy; 2024 Roop. All Rights Reserved.</p>
+  </footer>
+</body>
+
+</html>
