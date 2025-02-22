@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fuckin'電卓</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .calculator {
+      width: 300px;
+      margin: 50px auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .display {
+      font-size: 24px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      text-align: right;
+    }
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 5px;
+    }
+    .key {
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #e0e0e0;
+      transition: background-color 0.3s ease;
+    }
+    .key:hover {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="keys">
+      <button class="key" onclick="appendToDisplay('7')">7</button>
+      <button class="key" onclick="appendToDisplay('8')">8</button>
+      <button class="key" onclick="appendToDisplay('9')">9</button>
+      <button class="key" onclick="appendToDisplay('/')">÷</button>
+      <button class="key" onclick="appendToDisplay('4')">4</button>
+      <button class="key" onclick="appendToDisplay('5')">5</button>
+      <button class="key" onclick="appendToDisplay('6')">6</button>
+      <button class="key" onclick="appendToDisplay('*')">×</button>
+      <button class="key" onclick="appendToDisplay('1')">1</button>
+      <button class="key" onclick="appendToDisplay('2')">2</button>
+      <button class="key" onclick="appendToDisplay('3')">3</button>
+      <button class="key" onclick="appendToDisplay('-')">-</button>
+      <button class="key" onclick="appendToDisplay('0')">0</button>
+      <button class="key" onclick="appendToDisplay('.')">.</button>
+      <button class="key" onclick="clearDisplay()">C</button>
+      <button class="key" onclick="appendToDisplay('+')">+</button>
+      <button class="key" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    function appendToDisplay(value) {
+      const display = document.getElementById('display').innerText;
+
+      if ((display === '0' && value !== '.') || display === 'Error') {
+        document.getElementById('display').innerText = '';
+      }
+
+      document.getElementById('display').innerText += value;
+    }
+
+    function clearDisplay() {
+      document.getElementById('display').innerText = '0';
+    }
+
+    function calculate() {
+      try {
+        let expression = document.getElementById('display').innerText;
+        // eval、フロントエンドでも危険なことあるんですか？
+        // 誰かリプで教えて下さい...
+        // ちなみに、ちゃんと作った方の電卓ではevalは使ってないし浮動小数点数による誤差もないので安心してください
+        let result = eval(expression);
+        document.getElementById('display').innerText = result;
+      } catch (error) {
+        document.getElementById('display').innerText = 'Error';
+      }
+    }
+
+    document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+    });
+  </script>
+</body>
+</html>
