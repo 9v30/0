@@ -94,20 +94,24 @@
       }
     }
 
-    function safeCalculate(expression) {
-      return expression.replace(/(\d+\.\d+)/g, (match) => {
-        let [intPart, decPart] = match.split('.');
-        let intNum = parseInt(intPart, 10);
-        let decNum = parseInt(decPart, 10);
-        return `${intNum}.${decNum}`;
-      }).replace(/[^0-9+\-*/.]/g, '')
-        .replace(/\.{2,}/g, '.')
-        .replace(/(\d+)\.(\d+)([+\-*/])(\d+)\.(\d+)/g, (match, int1, dec1, op, int2, dec2) => {
-          let intResult = eval(`${int1} ${op} ${int2}`);
-          let decResult = eval(`${dec1} ${op} ${dec2}`);
-          return `${intResult}.${Math.abs(decResult)}`;
-        });
+    function calculate() {
+      try {
+        let expression = document.getElementById('display').innerText;
+    
+        if (!/^[0-9+\-*/.]+$/.test(expression)) {
+          document.getElementById('display').innerText = 'Error';
+          return;
+        }
+
+        // 正直、evalと何が違うのかまるでわからない
+        let result = new Function('return ' + expression)();
+    
+        document.getElementById('display').innerText = result;
+      } catch (error) {
+        document.getElementById('display').innerText = 'Error';
+      }
     }
+
 
     document.addEventListener('touchmove', function(e) {
         e.preventDefault();
