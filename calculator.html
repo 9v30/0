@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     body {
       font-family: Arial, sans-serif;
     }
+
     .calculator {
       width: 300px;
       margin: 50px auto;
@@ -17,6 +19,7 @@
       background-color: #f9f9f9;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+
     .display {
       font-size: 24px;
       padding: 10px;
@@ -26,11 +29,13 @@
       margin-bottom: 10px;
       text-align: right;
     }
+
     .keys {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-gap: 5px;
     }
+
     .key {
       padding: 15px;
       font-size: 18px;
@@ -40,11 +45,13 @@
       background-color: #e0e0e0;
       transition: background-color 0.3s ease;
     }
+
     .key:hover {
       background-color: #ccc;
     }
   </style>
 </head>
+
 <body>
   <div class="calculator">
     <div class="display" id="display">0</div>
@@ -93,33 +100,52 @@
         document.getElementById('display').innerText = 'Error';
       }
     }
-
     function calculate() {
       try {
         let expression = document.getElementById('display').innerText;
-    
+
         if (!/^[0-9+\-*/.]+$/.test(expression)) {
           document.getElementById('display').innerText = 'Error';
           return;
         }
 
-        // 正直、evalと何が違うのかまるでわからない
         let result = new Function('return ' + expression)();
-    
-        document.getElementById('display').innerText = result;
+
+        const aSigFigures = getSignificantFigures(expression);
+        const bSigFigures = getSignificantFigures(result);
+        const resultSigFigures = Math.max(aSigFigures, bSigFigures);
+
+        let roundedResult = roundToSignificantFigures(result, resultSigFigures);
+
+        document.getElementById('display').innerText = roundedResult;
+
       } catch (error) {
         document.getElementById('display').innerText = 'Error';
       }
     }
 
+    function getSignificantFigures(num) {
+      const numStr = num.toString();
+      const decimalPointIndex = numStr.indexOf('.');
+      if (decimalPointIndex === -1) return numStr.length;
+      return numStr.length - decimalPointIndex - 1;
+    }
 
-    document.addEventListener('touchmove', function(e) {
-        e.preventDefault();
+    function roundToSignificantFigures(num, sigFigures) {
+      const multiplier = Math.pow(10, sigFigures);
+      return Math.round(num * multiplier) / multiplier;
+    }
+
+
+
+    document.addEventListener('touchmove', function (e) {
+      e.preventDefault();
     }, { passive: false });
 
-    document.addEventListener('gesturestart', function(e) {
-        e.preventDefault();
+    document.addEventListener('gesturestart', function (e) {
+      e.preventDefault();
     });
   </script>
 </body>
+
 </html>
