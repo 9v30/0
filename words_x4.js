@@ -705,6 +705,5 @@ const words = {
     "check ～ out": "を確認する",
     "be interested in": "に興味がある",
     "from ～ to ～": "～から～まで",
-    "be famous for": "で有名である",
-    "penis": "ちんちん"
+    "be famous for": "で有名である"
 }
